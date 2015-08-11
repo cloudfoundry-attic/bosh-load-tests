@@ -1,0 +1,6 @@
+{
+  "environment": "dummy",
+  "director_migration_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec /Users/maria/workspace/bosh/bosh-director/bin/bosh-director-migrate",
+  "director_start_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec /Users/maria/workspace/bosh/bosh-director/bin/bosh-director",
+  "worker_start_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec /Users/maria/workspace/bosh/bosh-director/bin/bosh-director-worker"
+}
