@@ -1,6 +1,6 @@
 ---
 name: Test Director
-port: 65001
+port: {{ .Port }}
 mbus: nats://localhost:65002
 
 logging:
@@ -8,7 +8,7 @@ logging:
 
 redis:
   host: 127.0.0.1
-  port: 65003
+  port: 63791
   password:
 
 dir: /tmp/sandbox/boshdir

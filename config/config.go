@@ -10,6 +10,7 @@ type Config struct {
 	DirectorMigrationCommand string `json:"director_migration_cmd"`
 	DirectorStartCommand     string `json:"director_start_cmd"`
 	WorkerStartCommand       string `json:"worker_start_cmd"`
+	CliCmd                   string `json:"cli_cmd"`
 	fs                       boshsys.FileSystem
 }
 

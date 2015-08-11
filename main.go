@@ -7,6 +7,7 @@ import (
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 
 	bltconfig "github.com/mariash/bosh-load-tests/config"
+	bltdep "github.com/mariash/bosh-load-tests/deployment"
 	bltenv "github.com/mariash/bosh-load-tests/environment"
 )
 
@@ -16,7 +17,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger := boshlog.NewLogger(boshlog.LevelError)
+	logger := boshlog.NewLogger(boshlog.LevelDebug)
 	fs := boshsys.NewOsFileSystem(logger)
 	cmdRunner := boshsys.NewExecCmdRunner(logger)
 
@@ -26,6 +27,7 @@ func main() {
 		panic(err)
 	}
 
+	logger.Debug("main", "Setting up environment")
 	environmentProvider := bltenv.NewProvider(config, fs, cmdRunner)
 	environment := environmentProvider.Get()
 	err = environment.Setup()
@@ -33,4 +35,12 @@ func main() {
 		panic(err)
 	}
 	defer environment.Shutdown()
+
+	logger.Debug("main", "Starting deploy")
+	cliRunner := bltdep.NewCliRunner(config.CliCmd, cmdRunner)
+	deployment := bltdep.NewDeployment(environment.DirectorURL(), cliRunner)
+	err = deployment.Deploy()
+	if err != nil {
+		panic(err)
+	}
 }

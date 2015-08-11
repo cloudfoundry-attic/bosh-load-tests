@@ -1,9 +1,12 @@
 package dummy
 
 import (
-	"fmt"
-	"strings"
+	"path/filepath"
+	"time"
 
+	bltcom "github.com/mariash/bosh-load-tests/command"
+
+	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -11,84 +14,86 @@ type DirectorService struct {
 	directorMigrationCommand string
 	directorStartCommand     string
 	workerStartCommand       string
-	configPath               string
+	directorConfig           *DirectorConfig
 	cmdRunner                boshsys.CmdRunner
 	directorProcess          boshsys.Process
-	workerProcess            boshsys.Process
+	workerProcesses          []boshsys.Process
+	redisProcess             boshsys.Process
 }
 
 func NewDirectorService(
 	directorMigrationCommand string,
 	directorStartCommand string,
 	workerStartCommand string,
-	configPath string,
+	directorConfig *DirectorConfig,
 	cmdRunner boshsys.CmdRunner,
 ) *DirectorService {
 	return &DirectorService{
 		directorMigrationCommand: directorMigrationCommand,
 		directorStartCommand:     directorStartCommand,
 		workerStartCommand:       workerStartCommand,
-		configPath:               configPath,
+		directorConfig:           directorConfig,
 		cmdRunner:                cmdRunner,
 	}
 }
 
 func (s *DirectorService) Start() error {
-	_, _, _, err := s.cmdRunner.RunComplexCommand(s.createCommand(s.directorMigrationCommand))
+	err := s.directorConfig.Write()
 	if err != nil {
 		return err
 	}
 
-	s.directorProcess, err = s.cmdRunner.RunComplexCommandAsync(s.createCommand(s.directorStartCommand))
+	migrationCommand := bltcom.CreateCommand(s.directorMigrationCommand)
+	migrationCommand.Args = append(migrationCommand.Args, "-c", s.directorConfig.DirectorConfigPath())
+	_, _, _, err = s.cmdRunner.RunComplexCommand(migrationCommand)
+	if err != nil {
+		return bosherr.WrapError(err, "running migrations")
+	}
+
+	directorCommand := bltcom.CreateCommand(s.directorStartCommand)
+	directorCommand.Args = append(directorCommand.Args, "-c", s.directorConfig.DirectorConfigPath())
+	s.directorProcess, err = s.cmdRunner.RunComplexCommandAsync(directorCommand)
+	if err != nil {
+		return bosherr.WrapError(err, "starting director")
+	}
+
+	s.directorProcess.Wait()
+
+	redisConfigPath, err := filepath.Abs("./environment/dummy/redis.conf")
 	if err != nil {
 		return err
 	}
-
-	// wait for director
-
-	s.workerProcess, err = s.cmdRunner.RunComplexCommandAsync(s.createCommand(s.workerStartCommand))
+	redisCommand := boshsys.Command{
+		Name: "redis-server",
+		Args: []string{redisConfigPath},
+	}
+	s.redisProcess, err = s.cmdRunner.RunComplexCommandAsync(redisCommand)
 	if err != nil {
-		return err
+		return bosherr.WrapError(err, "starting redis")
 	}
 
-	// wait for worker
+	s.redisProcess.Wait()
+
+	for i := 1; i <= 3; i++ {
+		workerStartCommand := bltcom.CreateCommand(s.workerStartCommand)
+		workerStartCommand.Env["QUEUE"] = "*"
+		workerStartCommand.Args = append(workerStartCommand.Args, "-c", s.directorConfig.WorkerConfigPath(i))
+
+		workerProcess, err := s.cmdRunner.RunComplexCommandAsync(workerStartCommand)
+		if err != nil {
+			return bosherr.WrapError(err, "starting worker")
+		}
+		workerProcess.Wait()
+		s.workerProcesses = append(s.workerProcesses, workerProcess)
+	}
 
 	return nil
 }
 
 func (s *DirectorService) Stop() {
+	for _, process := range s.workerProcesses {
+		process.TerminateNicely(5 * time.Second)
+	}
 	s.directorProcess.TerminateNicely(5 * time.Second)
-	s.workerProcess.TerminateNicely(5 * time.Second)
-}
-
-func (s *DirectorService) createCommand(command string) boshsys.Command {
-	cmdParts := strings.Split(command, " ")
-	args := []string{}
-	env := map[string]string{}
-	var name string
-
-	for i := 0; i < len(cmdParts); i++ {
-		if strings.Contains(cmdParts[i], "=") {
-			envPair := strings.Split(cmdParts[i], "=")
-			env[envPair[0]] = envPair[1]
-			continue
-		}
-
-		if name == "" {
-			name = cmdParts[i]
-			continue
-		}
-
-		args = append(args, cmdParts[i])
-	}
-
-	args = append(args, "-c", s.configPath)
-
-	fmt.Printf("%#v", env)
-
-	return boshsys.Command{
-		Name: name,
-		Args: args,
-		Env:  env,
-	}
+	s.redisProcess.TerminateNicely(5 * time.Second)
 }

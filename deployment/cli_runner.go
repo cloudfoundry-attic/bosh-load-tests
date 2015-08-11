@@ -1,0 +1,46 @@
+package deployment
+
+import (
+	bltcom "github.com/mariash/bosh-load-tests/command"
+
+	boshsys "github.com/cloudfoundry/bosh-utils/system"
+)
+
+type CliRunner struct {
+	cmd       boshsys.Command
+	cmdRunner boshsys.CmdRunner
+}
+
+func NewCliRunner(cliCmd string, cmdRunner boshsys.CmdRunner) *CliRunner {
+	cmd := bltcom.CreateCommand(cliCmd)
+
+	return &CliRunner{
+		cmd:       cmd,
+		cmdRunner: cmdRunner,
+	}
+}
+
+func (r *CliRunner) TargetAndLogin(target string) error {
+	err := r.RunWithArgs("target", target)
+	if err != nil {
+		return err
+	}
+
+	err = r.RunWithArgs("login", "admin", "admin")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *CliRunner) RunWithArgs(args ...string) error {
+	cmd := r.cmd
+	cmd.Args = append(cmd.Args, args...)
+	_, _, _, err := r.cmdRunner.RunComplexCommand(cmd)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
