@@ -34,13 +34,30 @@ func (r *CliRunner) TargetAndLogin(target string) error {
 	return nil
 }
 
-func (r *CliRunner) RunWithArgs(args ...string) error {
+func (r *CliRunner) RunInDirWithArgs(dir string, args ...string) error {
 	cmd := r.cmd
 	cmd.Args = append(cmd.Args, args...)
+	cmd.WorkingDir = dir
 	_, _, _, err := r.cmdRunner.RunComplexCommand(cmd)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *CliRunner) RunWithOutput(args ...string) (string, error) {
+	cmd := r.cmd
+	cmd.Args = append(cmd.Args, args...)
+	stdOut, _, _, err := r.cmdRunner.RunComplexCommand(cmd)
+	if err != nil {
+		return stdOut, err
+	}
+
+	return stdOut, nil
+}
+
+func (r *CliRunner) RunWithArgs(args ...string) error {
+	_, err := r.RunWithOutput(args...)
+	return err
 }

@@ -1,7 +1,7 @@
 ---
 name: Test Director
 port: {{ .Port }}
-mbus: nats://localhost:65002
+mbus: nats://localhost:65010
 
 logging:
   level: DEBUG
@@ -59,7 +59,7 @@ snapshots:
 cloud:
   plugin: dummy
   properties:
-    nats: nats://localhost:65002
+    nats: nats://localhost:65010
     dir: /tmp/sandbox/boshcloud
     agent:
       blobstore:

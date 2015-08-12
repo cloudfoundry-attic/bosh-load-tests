@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
@@ -35,12 +38,31 @@ func main() {
 		panic(err)
 	}
 	defer environment.Shutdown()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go func() {
+		<-c
+		environment.Shutdown()
+		os.Exit(1)
+	}()
 
 	logger.Debug("main", "Starting deploy")
 	cliRunner := bltdep.NewCliRunner(config.CliCmd, cmdRunner)
-	deployment := bltdep.NewDeployment(environment.DirectorURL(), cliRunner)
-	err = deployment.Deploy()
-	if err != nil {
-		panic(err)
+	deployment := bltdep.NewDeployment(environment.DirectorURL(), cliRunner, fs)
+	deployment.Prepare()
+
+	doneCh := make(chan error)
+
+	for i := 0; i < config.NumberOfDeployments; i++ {
+		go func(i int) {
+			doneCh <- deployment.Deploy(fmt.Sprintf("my-deploy-%d", i))
+		}(i)
 	}
+
+	for i := 0; i < config.NumberOfDeployments; i++ {
+		<-doneCh
+	}
+
+	println("Done!")
 }

@@ -1,6 +1,8 @@
 package dummy
 
 import (
+	"time"
+
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	bltconfig "github.com/mariash/bosh-load-tests/config"
 )
@@ -9,6 +11,8 @@ type dummy struct {
 	workingDir      string
 	database        *Database
 	directorService *DirectorService
+	nginxService    *NginxService
+	natsService     *NatsService
 	config          *bltconfig.Config
 	fs              boshsys.FileSystem
 	cmdRunner       boshsys.CmdRunner
@@ -35,6 +39,18 @@ func (d *dummy) Setup() error {
 		return err
 	}
 
+	d.natsService = NewNatsService(d.config.NatsStartCommand, 65010, d.cmdRunner)
+	err = d.natsService.Start()
+	if err != nil {
+		return err
+	}
+
+	d.nginxService = NewNginxService(d.config.NginxStartCommand, 65001, 65002, d.cmdRunner)
+	err = d.nginxService.Start()
+	if err != nil {
+		return err
+	}
+
 	directorConfig := NewDirectorConfig(65001, d.workingDir, d.fs)
 	d.directorService = NewDirectorService(
 		d.config.DirectorMigrationCommand,
@@ -43,13 +59,22 @@ func (d *dummy) Setup() error {
 		directorConfig,
 		d.cmdRunner,
 	)
-	// start nats
 
-	return d.directorService.Start()
+	err = d.directorService.Start()
+	if err != nil {
+		return err
+	}
+
+	// FIXME: wait for startup instead
+	time.Sleep(5 * time.Second)
+
+	return nil
 }
 
 func (d *dummy) Shutdown() error {
+	d.nginxService.Stop()
 	d.directorService.Stop()
+	d.natsService.Stop()
 	d.database.Drop()
 	d.fs.RemoveAll(d.workingDir)
 
@@ -57,5 +82,5 @@ func (d *dummy) Shutdown() error {
 }
 
 func (d *dummy) DirectorURL() string {
-	return "http://localhost:65001"
+	return "http://localhost:65002"
 }
