@@ -21,7 +21,7 @@ scheduled_jobs:
 
 db: &bosh_db
   adapter: postgres
-  database: test
+  database: {{ .DatabaseName }}
   # Settings are set to defaults since DbBackup
   # currently does not support export without them
   host: 127.0.0.1

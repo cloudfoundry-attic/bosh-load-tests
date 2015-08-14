@@ -9,23 +9,24 @@ import (
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
-type directorConfigOptions struct {
-	Port int
+type DirectorOptions struct {
+	Port         int
+	DatabaseName string
 }
 
 type DirectorConfig struct {
-	directorPort int
-	numWorkers   int
-	baseDir      string
-	fs           boshsys.FileSystem
+	options    DirectorOptions
+	numWorkers int
+	baseDir    string
+	fs         boshsys.FileSystem
 }
 
-func NewDirectorConfig(directorPort int, baseDir string, fs boshsys.FileSystem) *DirectorConfig {
+func NewDirectorConfig(options DirectorOptions, baseDir string, fs boshsys.FileSystem) *DirectorConfig {
 	return &DirectorConfig{
-		directorPort: directorPort,
-		numWorkers:   3,
-		baseDir:      baseDir,
-		fs:           fs,
+		options:    options,
+		numWorkers: 3,
+		baseDir:    baseDir,
+		fs:         fs,
 	}
 }
 
@@ -44,13 +45,13 @@ func (c *DirectorConfig) Write() error {
 	}
 
 	t := template.Must(template.ParseFiles(directorTemplatePath))
-	err = c.saveConfig(c.directorPort, c.DirectorConfigPath(), t)
+	err = c.saveConfig(c.options.Port, c.DirectorConfigPath(), t)
 	if err != nil {
 		return err
 	}
 
 	for i := 1; i <= c.numWorkers; i++ {
-		err = c.saveConfig(c.directorPort+i, c.WorkerConfigPath(i), t)
+		err = c.saveConfig(c.options.Port+i, c.WorkerConfigPath(i), t)
 		if err != nil {
 			return err
 		}
@@ -60,10 +61,9 @@ func (c *DirectorConfig) Write() error {
 
 func (c *DirectorConfig) saveConfig(port int, path string, t *template.Template) error {
 	buffer := bytes.NewBuffer([]byte{})
-	options := directorConfigOptions{
-		Port: port,
-	}
-	err := t.Execute(buffer, options)
+	context := c.options
+	context.Port = port
+	err := t.Execute(buffer, context)
 	if err != nil {
 		return err
 	}

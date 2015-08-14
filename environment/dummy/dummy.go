@@ -51,7 +51,12 @@ func (d *dummy) Setup() error {
 		return err
 	}
 
-	directorConfig := NewDirectorConfig(65001, d.workingDir, d.fs)
+	directorOptions := DirectorOptions{
+		Port:         65001,
+		DatabaseName: d.database.Name(),
+	}
+
+	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs)
 	d.directorService = NewDirectorService(
 		d.config.DirectorMigrationCommand,
 		d.config.DirectorStartCommand,

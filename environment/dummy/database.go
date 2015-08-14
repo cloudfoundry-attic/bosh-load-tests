@@ -1,7 +1,11 @@
 package dummy
 
 import (
+	"errors"
+	"strings"
+
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	boshuuid "github.com/cloudfoundry/bosh-utils/uuid"
 )
 
 type Database struct {
@@ -11,14 +15,23 @@ type Database struct {
 
 func NewDatabase(name string, cmdRunner boshsys.CmdRunner) *Database {
 	return &Database{
-		name:      name,
 		cmdRunner: cmdRunner,
 	}
 }
 
+func (d *Database) Name() string {
+	return d.name
+}
+
 func (d *Database) Create() error {
+	uuid, err := boshuuid.NewGenerator().Generate()
+	if err != nil {
+		return err
+	}
+	d.name = strings.Join([]string{"bosh", uuid}, "-")
+
 	d.Drop()
-	_, _, _, err := d.cmdRunner.RunCommand("psql", "-U", "postgres", "-c", "create database "+d.name+";")
+	_, _, _, err = d.cmdRunner.RunCommand("psql", "-U", "postgres", "-c", "create database \""+d.name+"\";")
 	if err != nil {
 		return err
 	}
@@ -26,7 +39,11 @@ func (d *Database) Create() error {
 }
 
 func (d *Database) Drop() error {
-	_, _, _, err := d.cmdRunner.RunCommand("psql", "-U", "postgres", "-c", "drop database "+d.name+";")
+	if d.name == "" {
+		return errors.New("Need to create database first")
+	}
+
+	_, _, _, err := d.cmdRunner.RunCommand("psql", "-U", "postgres", "-c", "drop database \""+d.name+"\";")
 	if err != nil {
 		return err
 	}
