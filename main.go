@@ -59,7 +59,7 @@ func main() {
 
 	actionFactory := bltaction.NewFactory(directorInfo, fs)
 
-	actionsFlow := bltflow.NewFlow([]string{"prepare"}, actionFactory, cliRunnerFactory)
+	actionsFlow := bltflow.NewFlow(1, []string{"prepare"}, actionFactory, cliRunnerFactory)
 	err = actionsFlow.Run()
 	if err != nil {
 		panic(err)
@@ -67,15 +67,20 @@ func main() {
 
 	doneCh := make(chan error)
 
-	for i := 0; i < config.NumberOfDeployments; i++ {
+	for i := 0; i < len(config.Flows); i++ {
 		go func(i int) {
-			flow := bltflow.NewFlow([]string{"deploy"}, actionFactory, cliRunnerFactory)
+			actionNames := config.Flows[i]
+			logger.Debug("main", "Creating flow with %#v", actionNames)
+			flow := bltflow.NewFlow(i, actionNames, actionFactory, cliRunnerFactory)
 			doneCh <- flow.Run()
 		}(i)
 	}
 
-	for i := 0; i < config.NumberOfDeployments; i++ {
-		<-doneCh
+	for i := 0; i < len(config.Flows); i++ {
+		err = <-doneCh
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	println("Done!")

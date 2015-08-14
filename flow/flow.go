@@ -9,17 +9,20 @@ import (
 )
 
 type actionsFlow struct {
+	flowNumber       int
 	actionNames      []string
 	actionFactory    bltaction.Factory
 	cliRunnerFactory bltclirunner.Factory
 }
 
 func NewFlow(
+	flowNumber int,
 	actionNames []string,
 	actionFactory bltaction.Factory,
 	cliRunnerFactory bltclirunner.Factory,
 ) *actionsFlow {
 	return &actionsFlow{
+		flowNumber:       flowNumber,
 		actionNames:      actionNames,
 		actionFactory:    actionFactory,
 		cliRunnerFactory: cliRunnerFactory,
@@ -38,7 +41,7 @@ func (f *actionsFlow) Run() error {
 	defer cliRunner.Clean()
 
 	for _, actionName := range f.actionNames {
-		action, err := f.actionFactory.Create(actionName, deploymentName, cliRunner)
+		action, err := f.actionFactory.Create(actionName, f.flowNumber, deploymentName, cliRunner)
 		if err != nil {
 			return err
 		}

@@ -8,7 +8,7 @@ import (
 )
 
 type Factory interface {
-	Create(name string, deploymentName string, cliRunner bltclirunner.Runner) (Action, error)
+	Create(name string, flowNumber int, deploymentName string, cliRunner bltclirunner.Runner) (Action, error)
 }
 
 type factory struct {
@@ -26,12 +26,21 @@ func NewFactory(
 	}
 }
 
-func (f *factory) Create(name string, deploymentName string, cliRunner bltclirunner.Runner) (Action, error) {
+func (f *factory) Create(
+	name string,
+	flowNumber int,
+	deploymentName string,
+	cliRunner bltclirunner.Runner,
+) (Action, error) {
 	switch name {
 	case "prepare":
 		return NewPrepare(f.directorInfo, cliRunner, f.fs), nil
-	case "deploy":
-		return NewDeploy(f.directorInfo, deploymentName, cliRunner, f.fs), nil
+	case "deploy_with_dynamic":
+		return NewDeployWithDynamic(f.directorInfo, deploymentName, cliRunner, f.fs), nil
+	case "deploy_with_static":
+		return NewDeployWithStatic(f.directorInfo, flowNumber, deploymentName, cliRunner, f.fs), nil
+	case "recreate":
+		return NewRecreate(f.directorInfo, deploymentName, cliRunner, f.fs), nil
 	}
 
 	return nil, errors.New("unknown action")

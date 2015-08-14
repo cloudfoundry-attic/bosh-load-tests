@@ -9,20 +9,20 @@ import (
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
-type deploy struct {
+type deployWithDynamic struct {
 	directorInfo   DirectorInfo
 	deploymentName string
 	cliRunner      bltclirunner.Runner
 	fs             boshsys.FileSystem
 }
 
-type manifestData struct {
-	DeploymentName string
-	DirectorUUID   string
-}
-
-func NewDeploy(directorInfo DirectorInfo, deploymentName string, cliRunner bltclirunner.Runner, fs boshsys.FileSystem) *deploy {
-	return &deploy{
+func NewDeployWithDynamic(
+	directorInfo DirectorInfo,
+	deploymentName string,
+	cliRunner bltclirunner.Runner,
+	fs boshsys.FileSystem,
+) *deployWithDynamic {
+	return &deployWithDynamic{
 		directorInfo:   directorInfo,
 		deploymentName: deploymentName,
 		cliRunner:      cliRunner,
@@ -30,7 +30,7 @@ func NewDeploy(directorInfo DirectorInfo, deploymentName string, cliRunner bltcl
 	}
 }
 
-func (d *deploy) Execute() error {
+func (d *deployWithDynamic) Execute() error {
 	err := d.cliRunner.TargetAndLogin(d.directorInfo.URL)
 	if err != nil {
 		return err
