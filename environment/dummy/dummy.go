@@ -71,7 +71,7 @@ func (d *dummy) Setup() error {
 	}
 
 	// FIXME: wait for startup instead
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	return nil
 }

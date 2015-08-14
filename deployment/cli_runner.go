@@ -21,7 +21,7 @@ func NewCliRunner(cliCmd string, cmdRunner boshsys.CmdRunner) *CliRunner {
 }
 
 func (r *CliRunner) TargetAndLogin(target string) error {
-	err := r.RunWithArgs("target", target)
+	err := r.RunWithArgs("-n", "target", target)
 	if err != nil {
 		return err
 	}
