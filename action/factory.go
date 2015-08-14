@@ -41,6 +41,8 @@ func (f *factory) Create(
 		return NewDeployWithStatic(f.directorInfo, flowNumber, deploymentName, cliRunner, f.fs), nil
 	case "recreate":
 		return NewRecreate(f.directorInfo, deploymentName, cliRunner, f.fs), nil
+	case "stop_hard":
+		return NewStopHard(f.directorInfo, deploymentName, cliRunner, f.fs), nil
 	}
 
 	return nil, errors.New("unknown action")
