@@ -48,8 +48,6 @@ func main() {
 
 	logger.Debug("main", "Starting deploy")
 
-	// actionFactory := bltaction.NewFactory()
-
 	cliRunner := bltaction.NewCliRunner(config.CliCmd, cmdRunner, fs)
 	cliRunner.Configure()
 	defer cliRunner.Clean()
@@ -59,14 +57,15 @@ func main() {
 		panic(err)
 	}
 
-	prepareAction := bltaction.NewPrepare(directorInfo, cliRunner, fs)
+	actionFactory := bltaction.NewFactory(directorInfo, fs)
+
+	prepareAction, _ := actionFactory.Create("prepare", "", cliRunner)
 	err = prepareAction.Execute()
 	if err != nil {
 		panic(err)
 	}
 
-	deploymentName := "my-deploy"
-	deployAction := bltaction.NewDeploy(directorInfo, deploymentName, cliRunner, fs)
+	deployAction, _ := actionFactory.Create("deploy", "my-deploy", cliRunner)
 	err = deployAction.Execute()
 	if err != nil {
 		panic(err)

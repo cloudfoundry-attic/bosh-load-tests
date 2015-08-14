@@ -1,17 +1,33 @@
 package action
 
-// type factory struct {
-// 	actions map[string]Action
-// }
+import (
+	"errors"
 
-// func NewFactory(directorURL string) *factory {
-// 	return &factory{
-// 		actions: map[string]Action{
-// 			"deploy": NewDeploy(directorURL),
-// 		},
-// 	}
-// }
+	boshsys "github.com/cloudfoundry/bosh-utils/system"
+)
 
-// func (f *factory) Create(name string) {
-// 	return f.actions[name]
-// }
+type factory struct {
+	directorInfo DirectorInfo
+	fs           boshsys.FileSystem
+}
+
+func NewFactory(
+	directorInfo DirectorInfo,
+	fs boshsys.FileSystem,
+) *factory {
+	return &factory{
+		directorInfo: directorInfo,
+		fs:           fs,
+	}
+}
+
+func (f *factory) Create(name string, deploymentName string, cliRunner *CliRunner) (Action, error) {
+	switch name {
+	case "prepare":
+		return NewPrepare(f.directorInfo, cliRunner, f.fs), nil
+	case "deploy":
+		return NewDeploy(f.directorInfo, deploymentName, cliRunner, f.fs), nil
+	}
+
+	return nil, errors.New("unknown action")
+}
