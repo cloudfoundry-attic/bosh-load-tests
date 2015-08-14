@@ -3,11 +3,12 @@ package action
 import (
 	"errors"
 
+	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 type Factory interface {
-	Create(name string, deploymentName string, cliRunner *CliRunner) (Action, error)
+	Create(name string, deploymentName string, cliRunner bltclirunner.Runner) (Action, error)
 }
 
 type factory struct {
@@ -25,7 +26,7 @@ func NewFactory(
 	}
 }
 
-func (f *factory) Create(name string, deploymentName string, cliRunner *CliRunner) (Action, error) {
+func (f *factory) Create(name string, deploymentName string, cliRunner bltclirunner.Runner) (Action, error) {
 	switch name {
 	case "prepare":
 		return NewPrepare(f.directorInfo, cliRunner, f.fs), nil

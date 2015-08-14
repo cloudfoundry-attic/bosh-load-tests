@@ -1,29 +1,34 @@
-package action
+package clirunner
 
 import (
-	bltcom "github.com/cloudfoundry-incubator/bosh-load-tests/command"
-
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
-type CliRunner struct {
+type Runner interface {
+	Configure() error
+	Clean() error
+	TargetAndLogin(target string) error
+	RunInDirWithArgs(dir string, args ...string) error
+	RunWithArgs(args ...string) error
+	RunWithOutput(args ...string) (string, error)
+}
+
+type runner struct {
 	configPath string
 	cmd        boshsys.Command
 	cmdRunner  boshsys.CmdRunner
 	fs         boshsys.FileSystem
 }
 
-func NewCliRunner(cliCmd string, cmdRunner boshsys.CmdRunner, fs boshsys.FileSystem) *CliRunner {
-	cmd := bltcom.CreateCommand(cliCmd)
-
-	return &CliRunner{
+func NewRunner(cmd boshsys.Command, cmdRunner boshsys.CmdRunner, fs boshsys.FileSystem) Runner {
+	return &runner{
 		cmd:       cmd,
 		cmdRunner: cmdRunner,
 		fs:        fs,
 	}
 }
 
-func (r *CliRunner) Configure() error {
+func (r *runner) Configure() error {
 	configFile, err := r.fs.TempFile("bosh-config")
 	if err != nil {
 		return err
@@ -32,7 +37,7 @@ func (r *CliRunner) Configure() error {
 	return nil
 }
 
-func (r *CliRunner) Clean() error {
+func (r *runner) Clean() error {
 	if r.configPath == "" {
 		return nil
 	}
@@ -40,7 +45,7 @@ func (r *CliRunner) Clean() error {
 	return r.fs.RemoveAll(r.configPath)
 }
 
-func (r *CliRunner) TargetAndLogin(target string) error {
+func (r *runner) TargetAndLogin(target string) error {
 	err := r.RunWithArgs("target", target)
 	if err != nil {
 		return err
@@ -54,7 +59,7 @@ func (r *CliRunner) TargetAndLogin(target string) error {
 	return nil
 }
 
-func (r *CliRunner) RunInDirWithArgs(dir string, args ...string) error {
+func (r *runner) RunInDirWithArgs(dir string, args ...string) error {
 	cmd := r.cliCommand(args...)
 	cmd.WorkingDir = dir
 	_, _, _, err := r.cmdRunner.RunComplexCommand(cmd)
@@ -64,12 +69,12 @@ func (r *CliRunner) RunInDirWithArgs(dir string, args ...string) error {
 	return nil
 }
 
-func (r *CliRunner) RunWithArgs(args ...string) error {
+func (r *runner) RunWithArgs(args ...string) error {
 	_, err := r.RunWithOutput(args...)
 	return err
 }
 
-func (r *CliRunner) RunWithOutput(args ...string) (string, error) {
+func (r *runner) RunWithOutput(args ...string) (string, error) {
 	stdOut, _, _, err := r.cmdRunner.RunComplexCommand(r.cliCommand(args...))
 	if err != nil {
 		return stdOut, err
@@ -78,7 +83,7 @@ func (r *CliRunner) RunWithOutput(args ...string) (string, error) {
 	return stdOut, nil
 }
 
-func (r *CliRunner) cliCommand(args ...string) boshsys.Command {
+func (r *runner) cliCommand(args ...string) boshsys.Command {
 	cmd := r.cmd
 	cmd.Args = append(cmd.Args, "-n", "-c", r.configPath)
 	cmd.Args = append(cmd.Args, args...)

@@ -4,31 +4,25 @@ import (
 	"strings"
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
-	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	boshuuid "github.com/cloudfoundry/bosh-utils/uuid"
 )
 
 type actionsFlow struct {
-	cliPath       string
-	actionNames   []string
-	actionFactory bltaction.Factory
-	cmdRunner     boshsys.CmdRunner
-	fs            boshsys.FileSystem
+	actionNames      []string
+	actionFactory    bltaction.Factory
+	cliRunnerFactory bltclirunner.Factory
 }
 
 func NewFlow(
-	cliPath string,
 	actionNames []string,
 	actionFactory bltaction.Factory,
-	cmdRunner boshsys.CmdRunner,
-	fs boshsys.FileSystem,
+	cliRunnerFactory bltclirunner.Factory,
 ) *actionsFlow {
 	return &actionsFlow{
-		cliPath:       cliPath,
-		actionNames:   actionNames,
-		actionFactory: actionFactory,
-		cmdRunner:     cmdRunner,
-		fs:            fs,
+		actionNames:      actionNames,
+		actionFactory:    actionFactory,
+		cliRunnerFactory: cliRunnerFactory,
 	}
 }
 
@@ -39,7 +33,7 @@ func (f *actionsFlow) Run() error {
 	}
 	deploymentName := strings.Join([]string{"deployment", uuid}, "-")
 
-	cliRunner := bltaction.NewCliRunner(f.cliPath, f.cmdRunner, f.fs)
+	cliRunner := f.cliRunnerFactory.Create()
 	cliRunner.Configure()
 	defer cliRunner.Clean()
 

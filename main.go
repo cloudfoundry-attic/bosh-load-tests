@@ -9,6 +9,7 @@ import (
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
+	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
 	bltenv "github.com/cloudfoundry-incubator/bosh-load-tests/environment"
 	bltflow "github.com/cloudfoundry-incubator/bosh-load-tests/flow"
@@ -49,41 +50,33 @@ func main() {
 
 	logger.Debug("main", "Starting deploy")
 
-	cliRunner := bltaction.NewCliRunner(config.CliCmd, cmdRunner, fs)
-	cliRunner.Configure()
-	defer cliRunner.Clean()
+	cliRunnerFactory := bltclirunner.NewFactory(config.CliCmd, cmdRunner, fs)
 
-	directorInfo, err := bltaction.NewDirectorInfo(environment.DirectorURL(), cliRunner)
+	directorInfo, err := bltaction.NewDirectorInfo(environment.DirectorURL(), cliRunnerFactory)
 	if err != nil {
 		panic(err)
 	}
 
 	actionFactory := bltaction.NewFactory(directorInfo, fs)
 
-	actionsFlow := bltflow.NewFlow(config.CliCmd, []string{"prepare"}, actionFactory, cmdRunner, fs)
+	actionsFlow := bltflow.NewFlow([]string{"prepare"}, actionFactory, cliRunnerFactory)
 	err = actionsFlow.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	actionsFlow = bltflow.NewFlow(config.CliCmd, []string{"deploy"}, actionFactory, cmdRunner, fs)
-	err = actionsFlow.Run()
-	if err != nil {
-		panic(err)
+	doneCh := make(chan error)
+
+	for i := 0; i < config.NumberOfDeployments; i++ {
+		go func(i int) {
+			flow := bltflow.NewFlow([]string{"deploy"}, actionFactory, cliRunnerFactory)
+			doneCh <- flow.Run()
+		}(i)
 	}
 
-	// doneCh := make(chan error)
-
-	// for i := 0; i < config.NumberOfDeployments; i++ {
-	// 	go func(i int) {
-	// 		flow := bltflow.NewFlow([]string{"deploy"}, actionFactory)
-	// 		doneCh <- flow.Run()
-	// 	}(i)
-	// }
-
-	// for i := 0; i < config.NumberOfDeployments; i++ {
-	// 	<-doneCh
-	// }
+	for i := 0; i < config.NumberOfDeployments; i++ {
+		<-doneCh
+	}
 
 	println("Done!")
 }

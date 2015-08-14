@@ -5,13 +5,14 @@ import (
 	"path/filepath"
 	"text/template"
 
+	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 type deploy struct {
 	directorInfo   DirectorInfo
 	deploymentName string
-	cliRunner      *CliRunner
+	cliRunner      bltclirunner.Runner
 	fs             boshsys.FileSystem
 }
 
@@ -20,7 +21,7 @@ type manifestData struct {
 	DirectorUUID   string
 }
 
-func NewDeploy(directorInfo DirectorInfo, deploymentName string, cliRunner *CliRunner, fs boshsys.FileSystem) *deploy {
+func NewDeploy(directorInfo DirectorInfo, deploymentName string, cliRunner bltclirunner.Runner, fs boshsys.FileSystem) *deploy {
 	return &deploy{
 		directorInfo:   directorInfo,
 		deploymentName: deploymentName,

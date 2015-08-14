@@ -3,16 +3,17 @@ package action
 import (
 	"path/filepath"
 
+	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 type prepare struct {
 	directorInfo DirectorInfo
-	cliRunner    *CliRunner
+	cliRunner    bltclirunner.Runner
 	fs           boshsys.FileSystem
 }
 
-func NewPrepare(directorInfo DirectorInfo, cliRunner *CliRunner, fs boshsys.FileSystem) *prepare {
+func NewPrepare(directorInfo DirectorInfo, cliRunner bltclirunner.Runner, fs boshsys.FileSystem) *prepare {
 	return &prepare{
 		directorInfo: directorInfo,
 		cliRunner:    cliRunner,
