@@ -11,6 +11,7 @@ import (
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
 	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
 	bltenv "github.com/cloudfoundry-incubator/bosh-load-tests/environment"
+	bltflow "github.com/cloudfoundry-incubator/bosh-load-tests/flow"
 )
 
 func main() {
@@ -59,14 +60,14 @@ func main() {
 
 	actionFactory := bltaction.NewFactory(directorInfo, fs)
 
-	prepareAction, _ := actionFactory.Create("prepare", "", cliRunner)
-	err = prepareAction.Execute()
+	actionsFlow := bltflow.NewFlow(config.CliCmd, []string{"prepare"}, actionFactory, cmdRunner, fs)
+	err = actionsFlow.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	deployAction, _ := actionFactory.Create("deploy", "my-deploy", cliRunner)
-	err = deployAction.Execute()
+	actionsFlow = bltflow.NewFlow(config.CliCmd, []string{"deploy"}, actionFactory, cmdRunner, fs)
+	err = actionsFlow.Run()
 	if err != nil {
 		panic(err)
 	}

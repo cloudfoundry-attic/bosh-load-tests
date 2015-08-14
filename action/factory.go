@@ -6,6 +6,10 @@ import (
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
+type Factory interface {
+	Create(name string, deploymentName string, cliRunner *CliRunner) (Action, error)
+}
+
 type factory struct {
 	directorInfo DirectorInfo
 	fs           boshsys.FileSystem
