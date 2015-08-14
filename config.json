@@ -6,5 +6,18 @@
   "nginx_start_cmd": "/Users/pivotal/workspace/bosh/tmp/integration-nginx/sbin/nginx",
   "nats_start_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec nats-server",
   "cli_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec bosh",
-  "number_of_deployments": 10
+  "number_of_deployments": 10,
+  "number_of_workers": 3,
+  "flows": [
+  	["deploy_with_failing_job", "cck"],
+  	["deploy_with_failing_compilation", "deploy_with_static"],
+  	["deploy_with_static"],
+  	["deploy_with_dynamic"],
+  	["deploy_with_static", "deploy_with_new_static"],
+  	["deploy_with_static", "deploy_with_dynamic"],
+  	["deploy_with_dynamic", "deploy_with_static"],
+  	["deploy_with_dynamic", "update_cloud_config", "deploy_with_dynamic"],
+  	["deploy_with_static", "stop_hard", "start"],
+  	["deploy_with_dynamic", "recreate"]
+  ]
 }
