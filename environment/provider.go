@@ -3,8 +3,8 @@ package environment
 import (
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 
-	bltconfig "github.com/mariash/bosh-load-tests/config"
-	bltdummy "github.com/mariash/bosh-load-tests/environment/dummy"
+	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
+	bltdummy "github.com/cloudfoundry-incubator/bosh-load-tests/environment/dummy"
 )
 
 type provider struct {

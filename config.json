@@ -1,10 +1,10 @@
 {
   "environment": "dummy",
-  "director_migration_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec /Users/maria/workspace/bosh/bosh-director/bin/bosh-director-migrate",
-  "director_start_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec /Users/maria/workspace/bosh/bosh-director/bin/bosh-director",
-  "worker_start_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec /Users/maria/workspace/bosh/bosh-director/bin/bosh-director-worker",
-  "nginx_start_cmd": "/Users/maria/workspace/bosh/tmp/integration-nginx/sbin/nginx",
-  "nats_start_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec nats-server",
-  "cli_cmd": "BUNDLE_GEMFILE=/Users/maria/workspace/bosh/Gemfile bundle exec bosh",
+  "director_migration_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec /Users/pivotal/workspace/bosh/bosh-director/bin/bosh-director-migrate",
+  "director_start_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec /Users/pivotal/workspace/bosh/bosh-director/bin/bosh-director",
+  "worker_start_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec /Users/pivotal/workspace/bosh/bosh-director/bin/bosh-director-worker",
+  "nginx_start_cmd": "/Users/pivotal/workspace/bosh/tmp/integration-nginx/sbin/nginx",
+  "nats_start_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec nats-server",
+  "cli_cmd": "BUNDLE_GEMFILE=/Users/pivotal/workspace/bosh/Gemfile bundle exec bosh",
   "number_of_deployments": 10
 }

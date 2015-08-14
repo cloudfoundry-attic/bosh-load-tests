@@ -3,8 +3,8 @@ package dummy
 import (
 	"time"
 
+	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
-	bltconfig "github.com/mariash/bosh-load-tests/config"
 )
 
 type dummy struct {

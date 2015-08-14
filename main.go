@@ -9,9 +9,9 @@ import (
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 
-	bltconfig "github.com/mariash/bosh-load-tests/config"
-	bltdep "github.com/mariash/bosh-load-tests/deployment"
-	bltenv "github.com/mariash/bosh-load-tests/environment"
+	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
+	bltdep "github.com/cloudfoundry-incubator/bosh-load-tests/deployment"
+	bltenv "github.com/cloudfoundry-incubator/bosh-load-tests/environment"
 )
 
 func main() {

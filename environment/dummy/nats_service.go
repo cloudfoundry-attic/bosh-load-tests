@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	bltcom "github.com/mariash/bosh-load-tests/command"
+	bltcom "github.com/cloudfoundry-incubator/bosh-load-tests/command"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
