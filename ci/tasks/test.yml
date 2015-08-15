@@ -1,0 +1,13 @@
+---
+platform: linux
+
+image: docker:///bosh/init
+
+inputs:
+- name: bosh-load-tests
+  path: gopath/src/github.com/cloudfoundry-incubator/bosh-load-tests
+- name: bosh-src
+  path: bosh-src
+
+run:
+  path: gopath/src/github.com/cloudfoundry-incubator/bosh-load-tests/ci/tasks/test.sh

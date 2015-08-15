@@ -1,0 +1,22 @@
+{
+  "environment": "dummy",
+  "director_migration_cmd": "BUNDLE_GEMFILE=bosh-src/Gemfile bundle exec bosh-src/bosh-director/bin/bosh-director-migrate",
+  "director_start_cmd": "BUNDLE_GEMFILE=bosh-src/Gemfile bundle exec bosh-src/bosh-director/bin/bosh-director",
+  "worker_start_cmd": "BUNDLE_GEMFILE=bosh-src/Gemfile bundle exec bosh-src/bosh-director/bin/bosh-director-worker",
+  "nginx_start_cmd": "bosh-src/tmp/integration-nginx/sbin/nginx",
+  "nats_start_cmd": "BUNDLE_GEMFILE=bosh-src/Gemfile bundle exec nats-server",
+  "cli_cmd": "BUNDLE_GEMFILE=bosh-src/Gemfile bundle exec bosh",
+  "number_of_workers": 3,
+  "flows": [
+    ["deploy_with_dynamic"],
+    ["deploy_with_dynamic", "recreate"],
+  	["deploy_with_static"],
+  	["deploy_with_static", "recreate"],
+  	["deploy_with_dynamic", "deploy_with_static"],
+  	["deploy_with_static", "deploy_with_dynamic"],
+  	["deploy_with_static", "stop_hard"],
+  	["deploy_with_static", "stop_hard", "start"],
+  	["deploy_with_dynamic", "stop_hard"],
+  	["deploy_with_dynamic", "stop_hard", "start"]
+  ]
+}
