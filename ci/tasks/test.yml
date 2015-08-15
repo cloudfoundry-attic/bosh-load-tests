@@ -5,9 +5,9 @@ image: docker:///bosh/init
 
 inputs:
 - name: bosh-load-tests
-  path: gopath/src/github.com/cloudfoundry-incubator/bosh-load-tests
+  path: bosh-load-tests
 - name: bosh-src
   path: bosh-src
 
 run:
-  path: gopath/src/github.com/cloudfoundry-incubator/bosh-load-tests/ci/tasks/test.sh
+  path: bosh-load-tests/src/github.com/cloudfoundry-incubator/bosh-load-tests/ci/tasks/test.sh
