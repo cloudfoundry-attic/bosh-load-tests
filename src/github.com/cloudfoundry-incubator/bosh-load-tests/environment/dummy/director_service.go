@@ -124,7 +124,7 @@ func (s *DirectorService) Stop() {
 func (s *DirectorService) waitForResqueToStart() error {
 	cmd := boshsys.Command{
 		Name: "bash",
-		Args: []string{"-c", "ps | grep resque | grep -v grep | wc -l"},
+		Args: []string{"-c", "ps ax | grep resque | grep -v grep | wc -l"},
 	}
 
 	for i := 0; i < 30; i++ {
