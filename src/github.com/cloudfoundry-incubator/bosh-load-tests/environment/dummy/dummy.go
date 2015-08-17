@@ -48,13 +48,15 @@ func (d *dummy) Setup() error {
 		return err
 	}
 
-	d.natsService = NewNatsService(d.config.NatsStartCommand, 65010, d.cmdRunner)
+	portWaiter := NewPortWaiter(30, 1*time.Second)
+
+	d.natsService = NewNatsService(d.config.NatsStartCommand, 65010, d.cmdRunner, portWaiter)
 	err = d.natsService.Start()
 	if err != nil {
 		return err
 	}
 
-	d.nginxService = NewNginxService(d.config.NginxStartCommand, 65001, 65002, d.cmdRunner, d.assetsProvider)
+	d.nginxService = NewNginxService(d.config.NginxStartCommand, 65001, 65002, d.cmdRunner, d.assetsProvider, portWaiter)
 	err = d.nginxService.Start()
 	if err != nil {
 		return err
@@ -73,15 +75,13 @@ func (d *dummy) Setup() error {
 		directorConfig,
 		d.cmdRunner,
 		d.assetsProvider,
+		portWaiter,
 	)
 
 	err = d.directorService.Start()
 	if err != nil {
 		return err
 	}
-
-	// FIXME: wait for startup instead
-	time.Sleep(10 * time.Second)
 
 	return nil
 }

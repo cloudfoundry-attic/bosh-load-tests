@@ -46,6 +46,10 @@ func (c *DirectorConfig) WorkerConfigPath(index int) string {
 	return filepath.Join(c.baseDir, fmt.Sprintf("worker-%d.yml", index))
 }
 
+func (c *DirectorConfig) DirectorPort() int {
+	return c.options.Port
+}
+
 func (c *DirectorConfig) Write() error {
 	directorTemplatePath := c.assetsProvider.FullPath("director.yml")
 
@@ -56,7 +60,8 @@ func (c *DirectorConfig) Write() error {
 	}
 
 	for i := 1; i <= c.numWorkers; i++ {
-		err = c.saveConfig(c.options.Port+i, c.WorkerConfigPath(i), t)
+		port := c.options.Port + i
+		err = c.saveConfig(port, c.WorkerConfigPath(i), t)
 		if err != nil {
 			return err
 		}

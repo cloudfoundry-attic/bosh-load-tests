@@ -1,6 +1,8 @@
 package dummy
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
@@ -20,6 +22,8 @@ type DirectorService struct {
 	directorProcess          boshsys.Process
 	workerProcesses          []boshsys.Process
 	redisProcess             boshsys.Process
+	portWaiter               PortWaiter
+	numWorkers               int
 }
 
 func NewDirectorService(
@@ -29,6 +33,7 @@ func NewDirectorService(
 	directorConfig *DirectorConfig,
 	cmdRunner boshsys.CmdRunner,
 	assetsProvider bltassets.Provider,
+	portWaiter PortWaiter,
 ) *DirectorService {
 	return &DirectorService{
 		directorMigrationCommand: directorMigrationCommand,
@@ -37,6 +42,8 @@ func NewDirectorService(
 		directorConfig:           directorConfig,
 		cmdRunner:                cmdRunner,
 		assetsProvider:           assetsProvider,
+		portWaiter:               portWaiter,
+		numWorkers:               3,
 	}
 }
 
@@ -62,6 +69,11 @@ func (s *DirectorService) Start() error {
 
 	s.directorProcess.Wait()
 
+	err = s.portWaiter.Wait("DirectorService", "127.0.0.1", s.directorConfig.DirectorPort())
+	if err != nil {
+		return bosherr.WrapError(err, "Waiting for director to start up")
+	}
+
 	redisConfigPath := s.assetsProvider.FullPath("redis.conf")
 	redisCommand := boshsys.Command{
 		Name: "redis-server",
@@ -73,8 +85,12 @@ func (s *DirectorService) Start() error {
 	}
 
 	s.redisProcess.Wait()
+	err = s.portWaiter.Wait("RedisService", "127.0.0.1", 63791)
+	if err != nil {
+		return bosherr.WrapError(err, "Waiting for redis to start up")
+	}
 
-	for i := 1; i <= 3; i++ {
+	for i := 1; i <= s.numWorkers; i++ {
 		workerStartCommand := bltcom.CreateCommand(s.workerStartCommand)
 		workerStartCommand.Env["QUEUE"] = "*"
 		workerStartCommand.Args = append(workerStartCommand.Args, "-c", s.directorConfig.WorkerConfigPath(i))
@@ -85,9 +101,13 @@ func (s *DirectorService) Start() error {
 		}
 		workerProcess.Wait()
 		s.workerProcesses = append(s.workerProcesses, workerProcess)
+
+		if err != nil {
+			return bosherr.WrapError(err, "Waiting for worker to start up")
+		}
 	}
 
-	return nil
+	return s.waitForResqueToStart()
 }
 
 func (s *DirectorService) Stop() {
@@ -96,4 +116,21 @@ func (s *DirectorService) Stop() {
 	}
 	s.directorProcess.TerminateNicely(5 * time.Second)
 	s.redisProcess.TerminateNicely(5 * time.Second)
+}
+
+func (s *DirectorService) waitForResqueToStart() error {
+	cmd := boshsys.Command{
+		Name: "bash",
+		Args: []string{"-c", "ps | grep resque | grep -v grep | wc -l"},
+	}
+
+	for i := 0; i < 30; i++ {
+		stdout, _, _, _ := s.cmdRunner.RunComplexCommand(cmd)
+		if strings.TrimSpace(stdout) == strconv.Itoa(s.numWorkers) {
+			return nil
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	return bosherr.Error("Timed out waiting for workers to start")
 }

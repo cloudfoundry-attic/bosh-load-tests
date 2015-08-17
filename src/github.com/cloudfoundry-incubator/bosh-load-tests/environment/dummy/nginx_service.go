@@ -17,6 +17,7 @@ type NginxService struct {
 	cmdRunner         boshsys.CmdRunner
 	process           boshsys.Process
 	assetsProvider    bltassets.Provider
+	portWaiter        PortWaiter
 }
 
 func NewNginxService(
@@ -25,6 +26,7 @@ func NewNginxService(
 	nginxPort int,
 	cmdRunner boshsys.CmdRunner,
 	assetsProvider bltassets.Provider,
+	portWaiter PortWaiter,
 ) *NginxService {
 	return &NginxService{
 		nginxStartCommand: nginxStartCommand,
@@ -32,6 +34,7 @@ func NewNginxService(
 		nginxPort:         nginxPort,
 		cmdRunner:         cmdRunner,
 		assetsProvider:    assetsProvider,
+		portWaiter:        portWaiter,
 	}
 }
 
@@ -48,8 +51,7 @@ func (s *NginxService) Start() error {
 	}
 
 	s.process.Wait()
-
-	return nil
+	return s.portWaiter.Wait("NginxService", "127.0.0.1", s.nginxPort)
 }
 
 func (s *NginxService) Stop() {

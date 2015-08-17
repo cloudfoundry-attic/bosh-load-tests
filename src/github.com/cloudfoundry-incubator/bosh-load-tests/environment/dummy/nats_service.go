@@ -15,17 +15,20 @@ type NatsService struct {
 	natsPort         int
 	cmdRunner        boshsys.CmdRunner
 	process          boshsys.Process
+	portWaiter       PortWaiter
 }
 
 func NewNatsService(
 	natsStartCommand string,
 	natsPort int,
 	cmdRunner boshsys.CmdRunner,
+	portWaiter PortWaiter,
 ) *NatsService {
 	return &NatsService{
 		natsStartCommand: natsStartCommand,
 		natsPort:         natsPort,
 		cmdRunner:        cmdRunner,
+		portWaiter:       portWaiter,
 	}
 }
 
@@ -40,7 +43,7 @@ func (s *NatsService) Start() error {
 
 	s.process.Wait()
 
-	return nil
+	return s.portWaiter.Wait("NatsService", "127.0.0.1", s.natsPort)
 }
 
 func (s *NatsService) Stop() {

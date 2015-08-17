@@ -32,11 +32,7 @@ func (w *portWaiter) Wait(serviceName string, host string, port int) error {
 		if err == nil {
 			return nil
 		}
-		println("retrying %i", i)
-
 		time.Sleep(w.delay)
-		println(err.Error())
-
 	}
 
 	return bosherr.Errorf("Timed out waiting for service %s to come up for %d", serviceName, w.attempts)
