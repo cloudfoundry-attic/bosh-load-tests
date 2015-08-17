@@ -1,7 +1,7 @@
 ---
 platform: linux
 
-image: docker:///bosh/init
+image: docker:///bosh/main
 
 inputs:
 - name: bosh-load-tests
@@ -10,4 +10,4 @@ inputs:
   path: bosh-src
 
 run:
-  path: bosh-load-tests/src/github.com/cloudfoundry-incubator/bosh-load-tests/ci/tasks/test.sh
+  path: bosh-load-tests/ci/tasks/test.sh
