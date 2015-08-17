@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -15,18 +16,25 @@ type DirectorOptions struct {
 }
 
 type DirectorConfig struct {
-	options    DirectorOptions
-	numWorkers int
-	baseDir    string
-	fs         boshsys.FileSystem
+	options        DirectorOptions
+	numWorkers     int
+	baseDir        string
+	fs             boshsys.FileSystem
+	assetsProvider bltassets.Provider
 }
 
-func NewDirectorConfig(options DirectorOptions, baseDir string, fs boshsys.FileSystem) *DirectorConfig {
+func NewDirectorConfig(
+	options DirectorOptions,
+	baseDir string,
+	fs boshsys.FileSystem,
+	assetsProvider bltassets.Provider,
+) *DirectorConfig {
 	return &DirectorConfig{
-		options:    options,
-		numWorkers: 3,
-		baseDir:    baseDir,
-		fs:         fs,
+		options:        options,
+		numWorkers:     3,
+		baseDir:        baseDir,
+		fs:             fs,
+		assetsProvider: assetsProvider,
 	}
 }
 
@@ -39,13 +47,10 @@ func (c *DirectorConfig) WorkerConfigPath(index int) string {
 }
 
 func (c *DirectorConfig) Write() error {
-	directorTemplatePath, err := filepath.Abs("./environment/dummy/director.yml")
-	if err != nil {
-		return err
-	}
+	directorTemplatePath := c.assetsProvider.FullPath("director.yml")
 
 	t := template.Must(template.ParseFiles(directorTemplatePath))
-	err = c.saveConfig(c.options.Port, c.DirectorConfigPath(), t)
+	err := c.saveConfig(c.options.Port, c.DirectorConfigPath(), t)
 	if err != nil {
 		return err
 	}

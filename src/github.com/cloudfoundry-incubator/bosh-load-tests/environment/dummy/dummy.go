@@ -3,7 +3,9 @@ package dummy
 import (
 	"time"
 
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
+
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -16,13 +18,20 @@ type dummy struct {
 	config          *bltconfig.Config
 	fs              boshsys.FileSystem
 	cmdRunner       boshsys.CmdRunner
+	assetsProvider  bltassets.Provider
 }
 
-func NewDummy(config *bltconfig.Config, fs boshsys.FileSystem, cmdRunner boshsys.CmdRunner) *dummy {
+func NewDummy(
+	config *bltconfig.Config,
+	fs boshsys.FileSystem,
+	cmdRunner boshsys.CmdRunner,
+	assetsProvider bltassets.Provider,
+) *dummy {
 	return &dummy{
-		config:    config,
-		fs:        fs,
-		cmdRunner: cmdRunner,
+		config:         config,
+		fs:             fs,
+		cmdRunner:      cmdRunner,
+		assetsProvider: assetsProvider,
 	}
 }
 
@@ -45,7 +54,7 @@ func (d *dummy) Setup() error {
 		return err
 	}
 
-	d.nginxService = NewNginxService(d.config.NginxStartCommand, 65001, 65002, d.cmdRunner)
+	d.nginxService = NewNginxService(d.config.NginxStartCommand, 65001, 65002, d.cmdRunner, d.assetsProvider)
 	err = d.nginxService.Start()
 	if err != nil {
 		return err
@@ -56,13 +65,14 @@ func (d *dummy) Setup() error {
 		DatabaseName: d.database.Name(),
 	}
 
-	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs)
+	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs, d.assetsProvider)
 	d.directorService = NewDirectorService(
 		d.config.DirectorMigrationCommand,
 		d.config.DirectorStartCommand,
 		d.config.WorkerStartCommand,
 		directorConfig,
 		d.cmdRunner,
+		d.assetsProvider,
 	)
 
 	err = d.directorService.Start()

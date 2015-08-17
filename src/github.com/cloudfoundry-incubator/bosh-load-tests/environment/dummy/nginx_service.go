@@ -1,9 +1,9 @@
 package dummy
 
 import (
-	"path/filepath"
 	"time"
 
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	bltcom "github.com/cloudfoundry-incubator/bosh-load-tests/command"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -16,6 +16,7 @@ type NginxService struct {
 	nginxPort         int
 	cmdRunner         boshsys.CmdRunner
 	process           boshsys.Process
+	assetsProvider    bltassets.Provider
 }
 
 func NewNginxService(
@@ -23,23 +24,24 @@ func NewNginxService(
 	directorPort int,
 	nginxPort int,
 	cmdRunner boshsys.CmdRunner,
+	assetsProvider bltassets.Provider,
 ) *NginxService {
 	return &NginxService{
 		nginxStartCommand: nginxStartCommand,
 		directorPort:      directorPort,
 		nginxPort:         nginxPort,
 		cmdRunner:         cmdRunner,
+		assetsProvider:    assetsProvider,
 	}
 }
 
 func (s *NginxService) Start() error {
 	nginxStartCommand := bltcom.CreateCommand(s.nginxStartCommand)
-	configPath, err := filepath.Abs("./environment/dummy/nginx.yml")
-	if err != nil {
-		return bosherr.WrapError(err, "getting path to nginx config")
-	}
+	configPath := s.assetsProvider.FullPath("nginx.yml")
 
 	nginxStartCommand.Args = append(nginxStartCommand.Args, "-c", configPath)
+
+	var err error
 	s.process, err = s.cmdRunner.RunComplexCommandAsync(nginxStartCommand)
 	if err != nil {
 		return bosherr.WrapError(err, "starting nginx")

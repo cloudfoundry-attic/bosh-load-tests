@@ -6,6 +6,7 @@ import (
 )
 
 type Config struct {
+	AssetsPath               string     `json:"assets_path"`
 	Environment              string     `json:"environment"`
 	DirectorMigrationCommand string     `json:"director_migration_cmd"`
 	DirectorStartCommand     string     `json:"director_start_cmd"`

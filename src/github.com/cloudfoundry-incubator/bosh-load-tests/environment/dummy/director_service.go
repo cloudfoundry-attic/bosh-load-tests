@@ -1,9 +1,9 @@
 package dummy
 
 import (
-	"path/filepath"
 	"time"
 
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	bltcom "github.com/cloudfoundry-incubator/bosh-load-tests/command"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -14,6 +14,7 @@ type DirectorService struct {
 	directorMigrationCommand string
 	directorStartCommand     string
 	workerStartCommand       string
+	assetsProvider           bltassets.Provider
 	directorConfig           *DirectorConfig
 	cmdRunner                boshsys.CmdRunner
 	directorProcess          boshsys.Process
@@ -27,6 +28,7 @@ func NewDirectorService(
 	workerStartCommand string,
 	directorConfig *DirectorConfig,
 	cmdRunner boshsys.CmdRunner,
+	assetsProvider bltassets.Provider,
 ) *DirectorService {
 	return &DirectorService{
 		directorMigrationCommand: directorMigrationCommand,
@@ -34,6 +36,7 @@ func NewDirectorService(
 		workerStartCommand:       workerStartCommand,
 		directorConfig:           directorConfig,
 		cmdRunner:                cmdRunner,
+		assetsProvider:           assetsProvider,
 	}
 }
 
@@ -59,10 +62,7 @@ func (s *DirectorService) Start() error {
 
 	s.directorProcess.Wait()
 
-	redisConfigPath, err := filepath.Abs("./environment/dummy/redis.conf")
-	if err != nil {
-		return err
-	}
+	redisConfigPath := s.assetsProvider.FullPath("redis.conf")
 	redisCommand := boshsys.Command{
 		Name: "redis-server",
 		Args: []string{redisConfigPath},

@@ -10,6 +10,7 @@ import (
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
 	bltenv "github.com/cloudfoundry-incubator/bosh-load-tests/environment"
 	bltflow "github.com/cloudfoundry-incubator/bosh-load-tests/flow"
@@ -31,8 +32,10 @@ func main() {
 		panic(err)
 	}
 
+	assetsProvider := bltassets.NewProvider(config.AssetsPath)
+
 	logger.Debug("main", "Setting up environment")
-	environmentProvider := bltenv.NewProvider(config, fs, cmdRunner)
+	environmentProvider := bltenv.NewProvider(config, fs, cmdRunner, assetsProvider)
 	environment := environmentProvider.Get()
 	err = environment.Setup()
 	if err != nil {
