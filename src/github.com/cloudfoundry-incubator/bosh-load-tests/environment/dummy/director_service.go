@@ -74,7 +74,10 @@ func (s *DirectorService) Start() error {
 		return bosherr.WrapError(err, "Waiting for director to start up")
 	}
 
-	redisConfigPath := s.assetsProvider.FullPath("redis.conf")
+	redisConfigPath, err := s.assetsProvider.FullPath("redis.conf")
+	if err != nil {
+		return bosherr.WrapError(err, "Getting redis config path")
+	}
 	redisCommand := boshsys.Command{
 		Name: "redis-server",
 		Args: []string{redisConfigPath},

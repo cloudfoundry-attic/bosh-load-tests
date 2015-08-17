@@ -51,10 +51,13 @@ func (c *DirectorConfig) DirectorPort() int {
 }
 
 func (c *DirectorConfig) Write() error {
-	directorTemplatePath := c.assetsProvider.FullPath("director.yml")
+	directorTemplatePath, err := c.assetsProvider.FullPath("director.yml")
+	if err != nil {
+		return err
+	}
 
 	t := template.Must(template.ParseFiles(directorTemplatePath))
-	err := c.saveConfig(c.options.Port, c.DirectorConfigPath(), t)
+	err = c.saveConfig(c.options.Port, c.DirectorConfigPath(), t)
 	if err != nil {
 		return err
 	}

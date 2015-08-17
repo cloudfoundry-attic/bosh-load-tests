@@ -9,7 +9,7 @@ type provider struct {
 }
 
 type Provider interface {
-	FullPath(path string) string
+	FullPath(path string) (string, error)
 }
 
 func NewProvider(baseDir string) Provider {
@@ -18,6 +18,6 @@ func NewProvider(baseDir string) Provider {
 	}
 }
 
-func (p *provider) FullPath(path string) string {
-	return filepath.Join(p.baseDir, path)
+func (p *provider) FullPath(path string) (string, error) {
+	return filepath.Abs(filepath.Join(p.baseDir, path))
 }

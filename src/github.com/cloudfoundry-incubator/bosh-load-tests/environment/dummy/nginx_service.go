@@ -40,11 +40,13 @@ func NewNginxService(
 
 func (s *NginxService) Start() error {
 	nginxStartCommand := bltcom.CreateCommand(s.nginxStartCommand)
-	configPath := s.assetsProvider.FullPath("nginx.yml")
+	configPath, err := s.assetsProvider.FullPath("nginx.yml")
+	if err != nil {
+		return bosherr.WrapError(err, "Getting nginx config path")
+	}
 
 	nginxStartCommand.Args = append(nginxStartCommand.Args, "-c", configPath)
 
-	var err error
 	s.process, err = s.cmdRunner.RunComplexCommandAsync(nginxStartCommand)
 	if err != nil {
 		return bosherr.WrapError(err, "starting nginx")
