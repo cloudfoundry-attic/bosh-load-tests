@@ -50,6 +50,8 @@ func (f *factory) Create(
 		return NewStopHard(f.directorInfo, deploymentName, cliRunner, f.fs), nil
 	case "start":
 		return NewStart(f.directorInfo, deploymentName, cliRunner, f.fs), nil
+	case "delete_deployment":
+		return NewDeleteDeployment(f.directorInfo, deploymentName, cliRunner, f.fs), nil
 	}
 
 	return nil, errors.New("unknown action")

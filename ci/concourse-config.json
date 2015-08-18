@@ -19,6 +19,12 @@
     ["deploy_with_static", "stop_hard"],
     ["deploy_with_static", "stop_hard", "start"],
     ["deploy_with_dynamic", "stop_hard"],
-    ["deploy_with_dynamic", "stop_hard", "start"]
+    ["deploy_with_dynamic", "stop_hard", "start"],
+    ["deploy_with_dynamic", "delete_deployment"],
+    ["deploy_with_static", "delete_deployment"],
+    ["deploy_with_dynamic", "delete_deployment", "deploy_with_dynamic"],
+    ["deploy_with_static", "delete_deployment", "deploy_with_static"],
+    ["deploy_with_dynamic", "delete_deployment", "deploy_with_static"],
+    ["deploy_with_static", "delete_deployment", "deploy_with_dynamic"]
   ]
 }
