@@ -20,9 +20,12 @@ chruby 2.1.6
 
 echo 'Installing dependencies...'
 (
-	cd bosh-src
-	bundle install --local
-	bundle exec rake spec:integration:install_dependencies
+  cd bosh-src
+  bundle install --local
+  bundle exec rake spec:integration:install_dependencies
+
+  echo "Building agent..."
+  go/src/github.com/cloudfoundry/bosh-agent/bin/build
 )	
 
 echo 'Running tests...'
