@@ -26,7 +26,7 @@ type randomizer struct {
 
 type Randomizer interface {
 	Configure(filePath string) error
-	Prepare(flows [][]string) error
+	Prepare(flows [][]string, numberOfDeployments int) error
 	RunFlow(flowNumber int) error
 }
 
@@ -62,10 +62,13 @@ func (r *randomizer) Configure(filePath string) error {
 	return nil
 }
 
-func (r *randomizer) Prepare(flows [][]string) error {
-	for _, actionNames := range flows {
+func (r *randomizer) Prepare(flows [][]string, numberOfDeployments int) error {
+	for i := 0; i < numberOfDeployments; i++ {
 		actionInfos := []ActionInfo{}
-		for _, actionName := range actionNames {
+
+		randomActionNames := flows[rand.Intn(len(flows)-1)]
+
+		for _, actionName := range randomActionNames {
 			actionInfos = append(actionInfos, ActionInfo{
 				Name:                actionName,
 				DelayInMilliseconds: rand.Int63n(r.maxDelayInMilliseconds),

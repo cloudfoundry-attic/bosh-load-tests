@@ -16,7 +16,9 @@ type Config struct {
 	CliCmd                   string     `json:"cli_cmd"`
 	Flows                    [][]string `json:"flows"`
 	NumberOfWorkers          int        `json:"number_of_workers"`
-	fs                       boshsys.FileSystem
+	NumberOfDeployments      int        `json:"number_of_deployments"`
+
+	fs boshsys.FileSystem
 }
 
 func NewConfig(fs boshsys.FileSystem) *Config {

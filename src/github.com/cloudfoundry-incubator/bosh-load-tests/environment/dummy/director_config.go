@@ -28,10 +28,11 @@ func NewDirectorConfig(
 	baseDir string,
 	fs boshsys.FileSystem,
 	assetsProvider bltassets.Provider,
+	numWorkers int,
 ) *DirectorConfig {
 	return &DirectorConfig{
 		options:        options,
-		numWorkers:     3,
+		numWorkers:     numWorkers,
 		baseDir:        baseDir,
 		fs:             fs,
 		assetsProvider: assetsProvider,

@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 || len(os.Args) < 3 {
+	if len(os.Args) < 2 || len(os.Args) > 3 {
 		println("Usage: blt path/to/config.json [path/to/state.json]")
 		os.Exit(1)
 	}
@@ -77,7 +77,7 @@ func main() {
 			panic(err)
 		}
 	} else {
-		err = randomizer.Prepare(config.Flows)
+		err = randomizer.Prepare(config.Flows, config.NumberOfDeployments)
 		if err != nil {
 			panic(err)
 		}

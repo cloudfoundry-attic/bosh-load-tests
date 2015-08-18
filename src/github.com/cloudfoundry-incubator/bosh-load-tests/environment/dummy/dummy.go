@@ -67,7 +67,7 @@ func (d *dummy) Setup() error {
 		DatabaseName: d.database.Name(),
 	}
 
-	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs, d.assetsProvider)
+	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs, d.assetsProvider, d.config.NumberOfWorkers)
 	d.directorService = NewDirectorService(
 		d.config.DirectorMigrationCommand,
 		d.config.DirectorStartCommand,
