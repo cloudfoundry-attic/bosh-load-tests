@@ -34,6 +34,7 @@ func NewDirectorService(
 	cmdRunner boshsys.CmdRunner,
 	assetsProvider bltassets.Provider,
 	portWaiter PortWaiter,
+	numWorkers int,
 ) *DirectorService {
 	return &DirectorService{
 		directorMigrationCommand: directorMigrationCommand,
@@ -43,7 +44,7 @@ func NewDirectorService(
 		cmdRunner:                cmdRunner,
 		assetsProvider:           assetsProvider,
 		portWaiter:               portWaiter,
-		numWorkers:               3,
+		numWorkers:               numWorkers,
 	}
 }
 

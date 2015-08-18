@@ -76,6 +76,7 @@ func (d *dummy) Setup() error {
 		d.cmdRunner,
 		d.assetsProvider,
 		portWaiter,
+		d.config.NumberOfWorkers,
 	)
 
 	err = d.directorService.Start()

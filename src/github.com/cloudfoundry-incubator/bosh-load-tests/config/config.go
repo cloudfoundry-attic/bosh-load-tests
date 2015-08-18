@@ -15,6 +15,7 @@ type Config struct {
 	NatsStartCommand         string     `json:"nats_start_cmd"`
 	CliCmd                   string     `json:"cli_cmd"`
 	Flows                    [][]string `json:"flows"`
+	NumberOfWorkers          int        `json:"number_of_workers"`
 	fs                       boshsys.FileSystem
 }
 
