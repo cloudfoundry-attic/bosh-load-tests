@@ -60,7 +60,7 @@ func main() {
 		panic(err)
 	}
 
-	actionFactory := bltaction.NewFactory(directorInfo, fs)
+	actionFactory := bltaction.NewFactory(directorInfo, fs, assetsProvider)
 
 	actionsFlow := bltflow.NewFlow(1, []string{"prepare"}, actionFactory, cliRunnerFactory)
 	err = actionsFlow.Run()

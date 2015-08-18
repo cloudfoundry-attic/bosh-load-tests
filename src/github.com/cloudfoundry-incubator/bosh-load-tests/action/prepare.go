@@ -1,23 +1,30 @@
 package action
 
 import (
-	"path/filepath"
-
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
+
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 type prepare struct {
-	directorInfo DirectorInfo
-	cliRunner    bltclirunner.Runner
-	fs           boshsys.FileSystem
+	directorInfo   DirectorInfo
+	cliRunner      bltclirunner.Runner
+	fs             boshsys.FileSystem
+	assetsProvider bltassets.Provider
 }
 
-func NewPrepare(directorInfo DirectorInfo, cliRunner bltclirunner.Runner, fs boshsys.FileSystem) *prepare {
+func NewPrepare(
+	directorInfo DirectorInfo,
+	cliRunner bltclirunner.Runner,
+	fs boshsys.FileSystem,
+	assetsProvider bltassets.Provider,
+) *prepare {
 	return &prepare{
-		directorInfo: directorInfo,
-		cliRunner:    cliRunner,
-		fs:           fs,
+		directorInfo:   directorInfo,
+		cliRunner:      cliRunner,
+		fs:             fs,
+		assetsProvider: assetsProvider,
 	}
 }
 
@@ -27,7 +34,7 @@ func (p *prepare) Execute() error {
 		return err
 	}
 
-	cloudConfigPath, err := filepath.Abs("./assets/cloud_config.yml")
+	cloudConfigPath, err := p.assetsProvider.FullPath("cloud_config.yml")
 	if err != nil {
 		return err
 	}
@@ -37,7 +44,7 @@ func (p *prepare) Execute() error {
 		return err
 	}
 
-	stemcellPath, err := filepath.Abs("./assets/stemcell.tgz")
+	stemcellPath, err := p.assetsProvider.FullPath("stemcell.tgz")
 	if err != nil {
 		return err
 	}
@@ -53,7 +60,7 @@ func (p *prepare) Execute() error {
 	}
 	defer p.fs.RemoveAll(releaseDir)
 
-	releaseSrcPath, err := filepath.Abs("./assets/release")
+	releaseSrcPath, err := p.assetsProvider.FullPath("release")
 	if err != nil {
 		return err
 	}

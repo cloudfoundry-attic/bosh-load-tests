@@ -29,4 +29,8 @@ echo 'Running tests...'
 
 export GOPATH=$(realpath bosh-load-tests)
 
+bosh_src_path="$( cd bosh-src && pwd )"
+
+sed -i s#BOSH_SRC_PATH#${bosh_src_path}#g bosh-load-tests/ci/concourse-config.json
+
 go run bosh-load-tests/src/github.com/cloudfoundry-incubator/bosh-load-tests/main.go bosh-load-tests/ci/concourse-config.json

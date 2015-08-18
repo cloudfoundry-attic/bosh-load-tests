@@ -3,10 +3,11 @@ package action
 import (
 	"bytes"
 	"net"
-	"path/filepath"
 	"text/template"
 
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
+
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -16,6 +17,7 @@ type deployWithStatic struct {
 	deploymentName string
 	cliRunner      bltclirunner.Runner
 	fs             boshsys.FileSystem
+	assetsProvider bltassets.Provider
 }
 
 func NewDeployWithStatic(
@@ -24,6 +26,7 @@ func NewDeployWithStatic(
 	deploymentName string,
 	cliRunner bltclirunner.Runner,
 	fs boshsys.FileSystem,
+	assetsProvider bltassets.Provider,
 ) *deployWithStatic {
 	return &deployWithStatic{
 		directorInfo:   directorInfo,
@@ -31,6 +34,7 @@ func NewDeployWithStatic(
 		deploymentName: deploymentName,
 		cliRunner:      cliRunner,
 		fs:             fs,
+		assetsProvider: assetsProvider,
 	}
 }
 
@@ -40,7 +44,7 @@ func (d *deployWithStatic) Execute() error {
 		return err
 	}
 
-	manifestTemplatePath, err := filepath.Abs("./assets/manifest_with_static.yml")
+	manifestTemplatePath, err := d.assetsProvider.FullPath("manifest_with_static.yml")
 	if err != nil {
 		return err
 	}

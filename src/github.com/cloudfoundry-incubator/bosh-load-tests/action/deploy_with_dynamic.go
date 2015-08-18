@@ -2,10 +2,10 @@ package action
 
 import (
 	"bytes"
-	"path/filepath"
 	"text/template"
 
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
+	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -14,6 +14,7 @@ type deployWithDynamic struct {
 	deploymentName string
 	cliRunner      bltclirunner.Runner
 	fs             boshsys.FileSystem
+	assetsProvider bltassets.Provider
 }
 
 func NewDeployWithDynamic(
@@ -21,12 +22,14 @@ func NewDeployWithDynamic(
 	deploymentName string,
 	cliRunner bltclirunner.Runner,
 	fs boshsys.FileSystem,
+	assetsProvider bltassets.Provider,
 ) *deployWithDynamic {
 	return &deployWithDynamic{
 		directorInfo:   directorInfo,
 		deploymentName: deploymentName,
 		cliRunner:      cliRunner,
 		fs:             fs,
+		assetsProvider: assetsProvider,
 	}
 }
 
@@ -36,7 +39,7 @@ func (d *deployWithDynamic) Execute() error {
 		return err
 	}
 
-	manifestTemplatePath, err := filepath.Abs("./assets/manifest.yml")
+	manifestTemplatePath, err := d.assetsProvider.FullPath("manifest.yml")
 	if err != nil {
 		return err
 	}
