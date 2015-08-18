@@ -2,6 +2,7 @@ package flow
 
 import (
 	"strings"
+	"time"
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
@@ -10,20 +11,20 @@ import (
 
 type actionsFlow struct {
 	flowNumber       int
-	actionNames      []string
+	actionInfos      []ActionInfo
 	actionFactory    bltaction.Factory
 	cliRunnerFactory bltclirunner.Factory
 }
 
 func NewFlow(
 	flowNumber int,
-	actionNames []string,
+	actionInfos []ActionInfo,
 	actionFactory bltaction.Factory,
 	cliRunnerFactory bltclirunner.Factory,
 ) *actionsFlow {
 	return &actionsFlow{
 		flowNumber:       flowNumber,
-		actionNames:      actionNames,
+		actionInfos:      actionInfos,
 		actionFactory:    actionFactory,
 		cliRunnerFactory: cliRunnerFactory,
 	}
@@ -40,8 +41,8 @@ func (f *actionsFlow) Run() error {
 	cliRunner.Configure()
 	defer cliRunner.Clean()
 
-	for _, actionName := range f.actionNames {
-		action, err := f.actionFactory.Create(actionName, f.flowNumber, deploymentName, cliRunner)
+	for i, actionInfo := range f.actionInfos {
+		action, err := f.actionFactory.Create(actionInfo.Name, f.flowNumber, deploymentName, cliRunner)
 		if err != nil {
 			return err
 		}
@@ -49,6 +50,10 @@ func (f *actionsFlow) Run() error {
 		err = action.Execute()
 		if err != nil {
 			return err
+		}
+
+		if i < len(f.actionInfos)-1 {
+			time.Sleep(time.Duration(actionInfo.DelayInMilliseconds) * time.Millisecond)
 		}
 	}
 
