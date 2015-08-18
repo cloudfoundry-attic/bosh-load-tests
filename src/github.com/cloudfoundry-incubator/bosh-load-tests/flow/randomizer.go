@@ -1,6 +1,7 @@
 package flow
 
 import (
+	"encoding/json"
 	"math/rand"
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
@@ -56,7 +57,12 @@ func (r *randomizer) Prepare(flows [][]string) error {
 		r.state = append(r.state, actionInfos)
 	}
 
-	r.logger.Debug("randomizer", "Generated state %#v", r.state)
+	stateJSON, err := json.Marshal(r.state)
+	if err != nil {
+		return err
+	}
+
+	r.logger.Debug("randomizer", "Generated state '%s'", stateJSON)
 
 	return nil
 }
