@@ -17,8 +17,8 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		println("Usage: blt path/to/config.json")
+	if len(os.Args) < 2 || len(os.Args) < 3 {
+		println("Usage: blt path/to/config.json [path/to/state.json]")
 		os.Exit(1)
 	}
 
@@ -70,8 +70,18 @@ func main() {
 
 	doneCh := make(chan error)
 
-	randomizer := bltflow.NewRandomizer(actionFactory, cliRunnerFactory, logger)
-	randomizer.Prepare(config.Flows)
+	randomizer := bltflow.NewRandomizer(actionFactory, cliRunnerFactory, fs, logger)
+	if len(os.Args) == 3 {
+		err = randomizer.Configure(os.Args[2])
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		err = randomizer.Prepare(config.Flows)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	for i := 0; i < len(config.Flows); i++ {
 		go func(i int) {

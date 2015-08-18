@@ -7,6 +7,7 @@ import (
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
+	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 type ActionInfo struct {
@@ -19,10 +20,12 @@ type randomizer struct {
 	cliRunnerFactory       bltclirunner.Factory
 	state                  [][]ActionInfo
 	maxDelayInMilliseconds int64
+	fs                     boshsys.FileSystem
 	logger                 boshlog.Logger
 }
 
 type Randomizer interface {
+	Configure(filePath string) error
 	Prepare(flows [][]string) error
 	RunFlow(flowNumber int) error
 }
@@ -30,6 +33,7 @@ type Randomizer interface {
 func NewRandomizer(
 	actionFactory bltaction.Factory,
 	cliRunnerFactory bltclirunner.Factory,
+	fs boshsys.FileSystem,
 	logger boshlog.Logger,
 ) Randomizer {
 	return &randomizer{
@@ -37,11 +41,24 @@ func NewRandomizer(
 		cliRunnerFactory: cliRunnerFactory,
 		state:            [][]ActionInfo{},
 		maxDelayInMilliseconds: 5000,
-		logger:                 logger,
+		fs:     fs,
+		logger: logger,
 	}
 }
 
 func (r *randomizer) Configure(filePath string) error {
+	stateJSON, err := r.fs.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	r.logger.Debug("randomizer", "Using pre-loaded state '%s'", stateJSON)
+
+	err = json.Unmarshal([]byte(stateJSON), &r.state)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
