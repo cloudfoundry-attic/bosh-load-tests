@@ -16,7 +16,7 @@ su postgres -c '
 '
 
 source /etc/profile.d/chruby.sh
-chruby 2.1.6
+chruby $RUBY_VERSION
 
 echo 'Installing dependencies...'
 (
