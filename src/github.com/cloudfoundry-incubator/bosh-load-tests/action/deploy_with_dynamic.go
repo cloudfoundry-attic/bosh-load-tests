@@ -70,7 +70,8 @@ func (d *deployWithDynamic) Execute() error {
 		return err
 	}
 
-	err = d.cliRunner.RunWithArgs("deploy")
+	deployWrapper := NewDeployWrapper(d.cliRunner)
+	err = deployWrapper.RunWithDebug("deploy")
 	if err != nil {
 		return err
 	}
