@@ -1,7 +1,6 @@
 package action
 
 import (
-	"fmt"
 	"regexp"
 
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
@@ -24,7 +23,7 @@ func (d *deployWrapper) RunWithDebug(args ...string) error {
 		matches := re.FindAllStringSubmatch(output, -1)
 		if len(matches) > 0 && len(matches[0][1]) > 1 {
 			taskId := matches[0][1]
-			err := d.cliRunner.RunWithArgs(fmt.Sprintf("task %s --debug", taskId))
+			err := d.cliRunner.RunWithArgs("task", taskId, "--debug")
 			if err != nil {
 				return err
 			}
