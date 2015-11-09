@@ -1,8 +1,0 @@
----
-name: simple
-templates:
-  ctl: bin/ctl
-
-packages: []
-
-properties: {}
