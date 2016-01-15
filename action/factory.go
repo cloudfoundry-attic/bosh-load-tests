@@ -14,9 +14,9 @@ type Factory interface {
 }
 
 type factory struct {
-	directorInfo   DirectorInfo
-	fs             boshsys.FileSystem
-	assetsProvider bltassets.Provider
+	directorInfo        DirectorInfo
+	fs                  boshsys.FileSystem
+	assetsProvider      bltassets.Provider
 	usingLegacyManifest bool
 }
 
@@ -43,7 +43,7 @@ func (f *factory) Create(
 	case "prepare":
 		return NewPrepare(f.directorInfo, cliRunner, f.fs, f.assetsProvider), nil
 	case "upload_cloud_config":
-		return NewUploadCloudConfig(cliRunner, f.assetsProvider), nil
+		return NewUploadCloudConfig(f.directorInfo, cliRunner, f.assetsProvider), nil
 	case "deploy_with_dynamic":
 		return NewDeployWithDynamic(f.directorInfo, deploymentName, cliRunner, f.fs, f.assetsProvider, usingLegacyManifest), nil
 	case "deploy_with_static":

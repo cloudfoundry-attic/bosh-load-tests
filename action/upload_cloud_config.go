@@ -6,21 +6,29 @@ import (
 )
 
 type uploadCloudConfig struct {
+	directorInfo   DirectorInfo
 	cliRunner      bltclirunner.Runner
 	assetsProvider bltassets.Provider
 }
 
 func NewUploadCloudConfig(
+	directorInfo DirectorInfo,
 	cliRunner bltclirunner.Runner,
 	assetsProvider bltassets.Provider,
 ) *uploadCloudConfig {
 	return &uploadCloudConfig{
+		directorInfo:   directorInfo,
 		cliRunner:      cliRunner,
 		assetsProvider: assetsProvider,
 	}
 }
 
 func (p *uploadCloudConfig) Execute() error {
+	err := p.cliRunner.TargetAndLogin(p.directorInfo.URL)
+	if err != nil {
+		return err
+	}
+
 	cloudConfigPath, err := p.assetsProvider.FullPath("cloud_config.yml")
 	if err != nil {
 		return err
