@@ -90,7 +90,7 @@ func main() {
 	}
 
 	doneCh := make(chan error)
-	for i := 0; i < len(config.Flows); i++ {
+	for i := 0; i < config.NumberOfDeployments; i++ {
 		go func(i int) {
 			doneCh <- randomizer.RunFlow(i, config.UsingLegacyManifest)
 		}(i)
