@@ -96,7 +96,7 @@ func main() {
 		}(i)
 	}
 
-	for i := 0; i < len(config.Flows); i++ {
+	for i := 0; i < config.NumberOfDeployments; i++ {
 		err := <-doneCh
 		if err != nil {
 			panic(err)
