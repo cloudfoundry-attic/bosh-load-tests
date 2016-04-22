@@ -3,6 +3,7 @@ package flow
 import (
 	"encoding/json"
 	"math/rand"
+	"time"
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
@@ -36,6 +37,10 @@ func NewRandomizer(
 	fs boshsys.FileSystem,
 	logger boshlog.Logger,
 ) Randomizer {
+	seed := time.Now().Unix()
+	logger.Debug("randomizer", "Using random seed: %d", seed)
+	rand.Seed(seed)
+
 	return &randomizer{
 		actionFactory:    actionFactory,
 		cliRunnerFactory: cliRunnerFactory,
