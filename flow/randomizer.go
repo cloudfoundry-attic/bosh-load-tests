@@ -66,7 +66,7 @@ func (r *randomizer) Prepare(flows [][]string, numberOfDeployments int) error {
 	for i := 0; i < numberOfDeployments; i++ {
 		actionInfos := []ActionInfo{}
 
-		randomActionNames := flows[rand.Intn(len(flows)-1)]
+		randomActionNames := flows[rand.Intn(len(flows))]
 
 		for _, actionName := range randomActionNames {
 			actionInfos = append(actionInfos, ActionInfo{
