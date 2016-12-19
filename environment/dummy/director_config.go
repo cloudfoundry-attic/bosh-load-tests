@@ -18,6 +18,7 @@ type DirectorOptions struct {
 	DatabasePassword string
 	DatabasePort     int
 	BaseDir          string
+	DummyCpiCliPath  string
 }
 
 type DirectorConfig struct {
