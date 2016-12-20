@@ -6,9 +6,9 @@ import (
 	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
 
+	"errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"os"
-	"errors"
 )
 
 type dummy struct {
@@ -80,7 +80,7 @@ func (d *dummy) Setup() error {
 		DatabasePort:     d.database.Port(),
 	}
 
-	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs, d.assetsProvider, d.config.NumberOfWorkers)
+	directorConfig := NewDirectorConfig(directorOptions, d.workingDir, d.fs, d.assetsProvider, d.config.NumberOfWorkers, d.config.DummyCPIPath)
 	d.directorService = NewDirectorService(
 		d.config.DirectorMigrationCommand,
 		d.config.DirectorStartCommand,
