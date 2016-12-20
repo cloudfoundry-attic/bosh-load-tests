@@ -8,6 +8,7 @@ import (
 
 	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	"os"
 )
 
 type DirectorOptions struct {
@@ -68,6 +69,16 @@ func (c *DirectorConfig) Write() error {
 		return err
 	}
 
+	cpiTemplatePath, err := c.assetsProvider.FullPath("cpi.sh")
+	if err != nil {
+		return err
+	}
+	cpiTemplate := template.Must(template.ParseFiles(cpiTemplatePath))
+	err = c.saveCpiCli(c.DirectorConfigPath(), filepath.Join(c.baseDir, "cpi"), cpiTemplate)
+	if err != nil {
+		return err
+	}
+
 	for i := 1; i <= c.numWorkers; i++ {
 		port := c.options.Port + i
 		err = c.saveConfig(port, c.WorkerConfigPath(i), t)
@@ -88,6 +99,24 @@ func (c *DirectorConfig) saveConfig(port int, path string, t *template.Template)
 		return err
 	}
 	err = c.fs.WriteFile(path, buffer.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *DirectorConfig) saveCpiCli(directorConfigPath string, path string, t *template.Template) error {
+	buffer := bytes.NewBuffer([]byte{})
+	err := t.Execute(buffer, struct {DirectorConfigPath string}{DirectorConfigPath: directorConfigPath})
+	if err != nil {
+		return err
+	}
+	err = c.fs.WriteFile(path, buffer.Bytes())
+	if err != nil {
+		return err
+	}
+	err = c.fs.Chmod(path, os.ModePerm)
 	if err != nil {
 		return err
 	}
