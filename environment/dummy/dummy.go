@@ -80,6 +80,7 @@ func (d *dummy) Setup() error {
 		DatabasePort:     d.database.Port(),
 		BaseDir:          d.workingDir,
 		DummyCPIPath:     d.config.DummyCPIPath,
+		RubyVersion:      d.config.RubyVersion,
 	}
 
 	directorConfig := NewDirectorConfig(directorOptions, d.fs, d.assetsProvider, d.config.NumberOfWorkers)

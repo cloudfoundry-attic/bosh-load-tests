@@ -20,6 +20,7 @@ type DirectorOptions struct {
 	DatabasePort     int
 	BaseDir          string
 	DummyCPIPath     string
+	RubyVersion      string
 }
 
 type DirectorConfig struct {

@@ -14,6 +14,7 @@ type Config struct {
 	NginxStartCommand        string     `json:"nginx_start_cmd"`
 	NatsStartCommand         string     `json:"nats_start_cmd"`
 	DummyCPIPath             string     `json:"dummy_cpi_path"`
+	RubyVersion              string     `json:"ruby_version"`
 	CliCmd                   string     `json:"cli_cmd"`
 	Flows                    [][]string `json:"flows"`
 	NumberOfWorkers          int        `json:"number_of_workers"`
