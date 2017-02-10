@@ -11,14 +11,6 @@ type DirectorInfo struct {
 	Name string
 }
 
-type Table struct {
-	Rows [][]string `json:"Rows"`
-}
-
-type Output struct {
-	Tables []Table `json:"Tables"`
-}
-
 func NewDirectorInfo(directorURL string, cliRunnerFactory bltclirunner.Factory) (DirectorInfo, error) {
 	cliRunner := cliRunnerFactory.Create()
 
