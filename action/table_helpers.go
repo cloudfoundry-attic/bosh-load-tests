@@ -1,7 +1,7 @@
 package action
 
 type Table struct {
-	Rows [][]string `json:"Rows"`
+	Rows []map[string]interface{} `json:"Rows"`
 }
 
 type Output struct {

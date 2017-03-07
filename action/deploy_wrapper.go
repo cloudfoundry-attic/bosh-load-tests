@@ -1,6 +1,8 @@
 package action
 
 import (
+	"fmt"
+
 	"encoding/json"
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -28,11 +30,15 @@ func (d *deployWrapper) RunWithDebug(args ...string) (string, error) {
 	var outputStruct Output
 	json.Unmarshal([]byte(output), &outputStruct)
 
-	for _, row := range outputStruct.Tables[0].Rows {
-		if len(row[0]) > 0 {
-			taskId = row[0]
-			break
+	if outputStruct.Tables != nil {
+		for _, row := range outputStruct.Tables[0].Rows {
+			if val, found := row["0"]; found {
+				taskId = val.(string)
+				break
+			}
 		}
+	} else {
+		fmt.Println(fmt.Sprintf("OUTPUT: %s", output))
 	}
 
 	if err != nil {

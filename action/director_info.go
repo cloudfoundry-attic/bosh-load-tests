@@ -2,6 +2,7 @@ package action
 
 import (
 	"encoding/json"
+
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 )
 
@@ -26,11 +27,11 @@ func NewDirectorInfo(directorURL string, cliRunnerFactory bltclirunner.Factory) 
 
 	var name, uuid string
 	for _, row := range outputStruct.Tables[0].Rows {
-		switch row[0] {
+		switch row["col_0"] {
 		case "Name":
-			name = row[1]
+			name = row["col_1"].(string)
 		case "UUID":
-			uuid = row[1]
+			uuid = row["col_1"].(string)
 		default:
 			continue
 		}
