@@ -42,6 +42,8 @@ func (f *factory) Create(
 	switch name {
 	case "prepare":
 		return NewPrepare(f.directorInfo, cliRunner, f.fs, f.assetsProvider), nil
+	case "ignore":
+		return NewIgnore(f.directorInfo, deploymentName, cliRunner, f.fs, f.assetsProvider), nil
 	case "upload_cloud_config":
 		return NewUploadCloudConfig(f.directorInfo, cliRunner, f.assetsProvider), nil
 	case "deploy_with_dynamic":
