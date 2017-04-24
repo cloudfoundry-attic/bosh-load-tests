@@ -1,14 +1,15 @@
 package dummy
 
 import (
+	"errors"
+	"os"
+	"path/filepath"
 	"time"
 
 	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 	bltconfig "github.com/cloudfoundry-incubator/bosh-load-tests/config"
-
-	"errors"
+	boshlog "github.com/cloudfoundry/bosh-utils/logger"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
-	"os"
 )
 
 type dummy struct {
@@ -16,11 +17,13 @@ type dummy struct {
 	database        Database
 	directorService *DirectorService
 	nginxService    *NginxService
+	uaaService      *UAAService
 	natsService     *NatsService
 	config          *bltconfig.Config
 	fs              boshsys.FileSystem
 	cmdRunner       boshsys.CmdRunner
 	assetsProvider  bltassets.Provider
+	logger          boshlog.Logger
 }
 
 func NewDummy(
@@ -28,12 +31,15 @@ func NewDummy(
 	fs boshsys.FileSystem,
 	cmdRunner boshsys.CmdRunner,
 	assetsProvider bltassets.Provider,
+	logger boshlog.Logger,
+
 ) *dummy {
 	return &dummy{
 		config:         config,
 		fs:             fs,
 		cmdRunner:      cmdRunner,
 		assetsProvider: assetsProvider,
+		logger:         logger,
 	}
 }
 
@@ -69,6 +75,22 @@ func (d *dummy) Setup() error {
 	err = d.nginxService.Start()
 	if err != nil {
 		return err
+	}
+
+	if d.config.UAAConfig.Enabled {
+		uaaOptions := UAAServiceOptions{
+			AssetsPath:            d.config.AssetsPath,
+			TomcatPath:            d.config.UAAConfig.TomcatPath,
+			UaaHttpPort:           65003,
+			UaaServerPort:         65004,
+			UaaAccessLogDirectory: filepath.Join(d.workingDir, "UaaAccessLogDirectory"),
+		}
+
+		d.uaaService = NewUAAService(uaaOptions, d.cmdRunner, d.assetsProvider, d.fs, d.logger)
+		err = d.uaaService.Start()
+		if err != nil {
+			return err
+		}
 	}
 
 	directorOptions := DirectorOptions{
