@@ -104,6 +104,7 @@ func (d *dummy) Setup() error {
 		DummyCPIPath:          d.config.DummyCPIPath,
 		RubyVersion:           d.config.RubyVersion,
 		VerifyMultidigestPath: d.config.VerifyMultidigest,
+		UAAEnabled:            d.config.UAAConfig.Enabled,
 	}
 
 	directorConfig := NewDirectorConfig(directorOptions, d.fs, d.assetsProvider, d.config.NumberOfWorkers)
