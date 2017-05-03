@@ -32,7 +32,7 @@ func (p *prepareConfigServer) Execute() error {
 	targetURL.Path = "/uaa"
 
 	target := targetURL.String()
-	if err := p.uaaRunner.RunWithArgs("target", target); nil != err {
+	if err := p.uaaRunner.RunWithArgs("target", target, "--skip-ssl-validation"); nil != err {
 		return err
 	}
 
