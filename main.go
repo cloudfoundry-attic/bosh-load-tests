@@ -1,12 +1,9 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	"os"
 
 	bltaction "github.com/cloudfoundry-incubator/bosh-load-tests/action"
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
@@ -37,19 +34,6 @@ func main() {
 	logger.Debug("main", "Setting up environment")
 	environmentProvider := bltenv.NewProvider(config, fs, cmdRunner, assetsProvider, logger)
 	environment := environmentProvider.Get()
-	err = environment.Setup()
-	if err != nil {
-		panic(err)
-	}
-	defer environment.Shutdown()
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	go func() {
-		<-c
-		environment.Shutdown()
-		os.Exit(1)
-	}()
 
 	logger.Debug("main", "Starting deploy")
 
@@ -67,7 +51,7 @@ func main() {
 		err = prepareConfigServerFlow.Run(false)
 		if err != nil {
 			panic(err)
-		}	
+		}
 	}
 
 	prepareActionFlow := bltflow.NewFlow(1, []bltflow.ActionInfo{{Name: "prepare"}}, actionFactory, cliRunnerFactory)

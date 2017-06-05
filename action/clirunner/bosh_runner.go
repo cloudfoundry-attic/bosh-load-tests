@@ -51,10 +51,14 @@ func (r *boshRunner) cliCommand(args ...string) boshsys.Command {
 	cmd := r.cmd
 	if r.env != "" {
 		cmd.Args = append(cmd.Args, "-e", r.env)
+
+		if r.env == "dummy" {
+			cmd.Args = append(cmd.Args, "--ca-cert", "/tmp/cert")
+			cmd.Args = append(cmd.Args, "--client", "test", "--client-secret", "secret")
+		}
 	}
-	cmd.Args = append(cmd.Args, "--ca-cert", "/tmp/cert")
+
 	cmd.Args = append(cmd.Args, "-n", "--tty")
-	cmd.Args = append(cmd.Args, "--client", "test", "--client-secret", "secret")
 	cmd.Args = append(cmd.Args, args...)
 
 	return cmd
