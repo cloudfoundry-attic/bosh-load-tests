@@ -1,6 +1,7 @@
 package clirunner
 
 import (
+	"os"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -52,14 +53,14 @@ func (r *boshRunner) cliCommand(args ...string) boshsys.Command {
 	if r.env != "" {
 		cmd.Args = append(cmd.Args, "-e", r.env)
 
-		if r.env == "dummy" {
+		if _, found := os.LookupEnv("BOSH_CA_CERT"); !found {
 			cmd.Args = append(cmd.Args, "--ca-cert", "/tmp/cert")
+		}
+		if _, found := os.LookupEnv("BOSH_CLIENT"); !found {
 			cmd.Args = append(cmd.Args, "--client", "test", "--client-secret", "secret")
 		}
 	}
-
 	cmd.Args = append(cmd.Args, "-n", "--tty")
 	cmd.Args = append(cmd.Args, args...)
-
 	return cmd
 }
