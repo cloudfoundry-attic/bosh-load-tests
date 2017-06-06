@@ -39,7 +39,13 @@ func main() {
 
 	cliRunnerFactory := bltclirunner.NewFactory(config.CliCmd, cmdRunner, fs)
 
-	directorInfo, err := bltaction.NewDirectorInfo(environment.DirectorURL(), cliRunnerFactory)
+	var directorInfo bltaction.DirectorInfo
+	if environment == nil {
+		directorInfo, err = bltaction.NewDirectorInfo(os.Getenv("BOSH_ENVIRONMENT"), cliRunnerFactory)
+	} else {
+		directorInfo, err = bltaction.NewDirectorInfo(environment.DirectorURL(), cliRunnerFactory)
+	}
+
 	if err != nil {
 		panic(err)
 	}
