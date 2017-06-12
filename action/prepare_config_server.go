@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"net/url"
 
-	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
-	"os"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
+	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 )
 
 type prepareConfigServer struct {
@@ -16,8 +18,8 @@ type prepareConfigServer struct {
 }
 
 func NewPrepareConfigServer(
-		directorInfo DirectorInfo,
-		uaaRunner bltclirunner.Runner,
+	directorInfo DirectorInfo,
+	uaaRunner bltclirunner.Runner,
 ) *prepareConfigServer {
 	return &prepareConfigServer{
 		directorInfo: directorInfo,
@@ -31,8 +33,9 @@ func (p *prepareConfigServer) Execute() error {
 	if nil != err {
 		return err
 	}
+	urlWithoutPort := strings.Split(targetURL.Host, ":")[0]
+	targetURL.Host = fmt.Sprintf("%s:8443", urlWithoutPort)
 	targetURL.Scheme = "https"
-	targetURL.Path = "/uaa"
 
 	target := targetURL.String()
 	if err := p.uaaRunner.RunWithArgs("target", target, "--skip-ssl-validation"); nil != err {
