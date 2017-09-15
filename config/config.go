@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"os"
 
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
@@ -53,6 +54,11 @@ func (c *Config) Load(configPath string) error {
 	err = json.Unmarshal([]byte(contents), &c)
 	if err != nil {
 		return err
+	}
+
+	rubyVersion := os.Getenv("RUBY_VERSION")
+	if rubyVersion != "" {
+		c.RubyVersion = rubyVersion
 	}
 
 	return nil
