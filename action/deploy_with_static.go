@@ -8,8 +8,9 @@ import (
 	bltclirunner "github.com/cloudfoundry-incubator/bosh-load-tests/action/clirunner"
 	bltassets "github.com/cloudfoundry-incubator/bosh-load-tests/assets"
 
-	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"strings"
+
+	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 type deployWithStatic struct {
@@ -42,7 +43,7 @@ func NewDeployWithStatic(
 	}
 }
 
-var numInstancesPerFlow = 100
+var numInstancesPerFlow = 10
 
 func (d *deployWithStatic) Execute() error {
 	d.cliRunner.SetEnv(d.directorInfo.URL)
