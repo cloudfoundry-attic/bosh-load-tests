@@ -44,7 +44,7 @@ func NewDeployWithStatic(
 	}
 }
 
-var numInstancesPerFlow = 10
+var numInstancesPerFlow = 5
 
 func (d *deployWithStatic) Execute() error {
 	d.cliRunner.SetEnv(d.directorInfo.URL)
